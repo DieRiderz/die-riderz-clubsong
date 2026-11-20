@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DIE RIDERZ – Clubsong</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 12px;
+  background: transparent;
+  font-family: Arial, sans-serif;
+  color: white;
+}
+.player {
+  max-width: 650px;
+  margin: auto;
+  padding: 25px;
+  background: linear-gradient(135deg, #242424, #080808);
+  border: 2px solid #ff8015;
+  border-radius: 20px;
+  box-shadow: 0 0 25px #ff801533;
+  text-align: center;
+}
+h1 {
+  color: #ff8015;
+  margin: 0;
+  letter-spacing: 3px;
+  font-size: 30px;
+}
+.subtitle {
+  margin: 8px 0;
+  font-size: 16px;
+  font-weight: bold;
+}
+.slogan {
+  color: #aaa;
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+.play {
+  display: block;
+  margin: 22px auto;
+  width: 68px;
+  height: 68px;
+  border: none;
+  border-radius: 50%;
+  background: #ff8015;
+  color: #111;
+  font-size: 30px;
+  cursor: pointer;
+}
+.play:hover { background: #ffa64d; }
+.progress {
+  width: 100%;
+  accent-color: #ff8015;
+  cursor: pointer;
+}
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  font-size: 13px;
+}
+.volume {
+  width: 95px;
+  accent-color: #ff8015;
+}
+</style>
+</head>
+<body>
+
+<div class="player">
+  <h1>DIE RIDERZ</h1>
+  <div class="subtitle">OFFIZIELLER CLUBSONG</div>
+  <div class="slogan">EIN CLUB · EIN HERZ · EIN SOUND</div>
+
+  <button class="play" id="play" aria-label="Abspielen">▶</button>
+
+  <input class="progress" id="progress" type="range"
+         min="0" max="100" value="0">
+
+  <div class="controls">
+    <span id="time">0:00 / 0:00</span>
+    <span>
+      🔊 <input class="volume" id="volume"
+                type="range" min="0" max="1"
+                step="0.05" value="0.8">
+    </span>
+  </div>
+</div>
+
+<audio id="audio" preload="metadata"
+       controlsList="nodownload">
+  <source src="Clubsong.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const audio = document.getElementById("audio");
+const play = document.getElementById("play");
+const progress = document.getElementById("progress");
+const volume = document.getElementById("volume");
+const time = document.getElementById("time");
+
+function formatTime(seconds) {
+  if (!Number.isFinite(seconds)) return "0:00";
+  return Math.floor(seconds / 60) + ":" +
+    String(Math.floor(seconds % 60)).padStart(2, "0");
+}
+
+play.onclick = async () => {
+  if (audio.paused) {
+    try {
+      await audio.play();
+    } catch (e) {
+      alert("Der Song konnte nicht gestartet werden.");
+    }
+  } else {
+    audio.pause();
+  }
+};
+
+audio.onplay = () => {
+  play.textContent = "❚❚";
+  play.setAttribute("aria-label", "Pausieren");
+};
+
+audio.onpause = () => {
+  play.textContent = "▶";
+  play.setAttribute("aria-label", "Abspielen");
+};
+
+audio.ontimeupdate = () => {
+  if (audio.duration) {
+    progress.value = audio.currentTime / audio.duration * 100;
+  }
+  time.textContent = formatTime(audio.currentTime) +
+    " / " + formatTime(audio.duration);
+};
+
+audio.onloadedmetadata = audio.ontimeupdate;
+
+progress.oninput = () => {
+  if (audio.duration) {
+    audio.currentTime = progress.value / 100 * audio.duration;
+  }
+};
+
+volume.oninput = () => {
+  audio.volume = Number(volume.value);
+};
+
+audio.volume = 0.8;
+</script>
+</body>
+</html>
